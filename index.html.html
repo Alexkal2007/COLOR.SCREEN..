@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Color Screen Online · Full-Screen Color &amp; Effects Tool</title>
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --text:#1c1e21;
+    --muted:#6b7280;
+    --accent:#2563eb;
+    --border:#e5e7eb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 24px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .logo{
+    font-weight:800;
+    font-size:20px;
+    color:var(--accent);
+    text-decoration:none;
+  }
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .lang-switch{
+    display:flex;
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .lang-btn{
+    background:#fff;
+    color:var(--muted);
+    border:none;
+    padding:6px 12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .lang-btn.active{
+    background:var(--accent);
+    color:#fff;
+  }
+  main{
+    max-width:900px;
+    margin:0 auto;
+    padding:32px 16px 64px;
+  }
+  h1{
+    text-align:center;
+    font-size:28px;
+    margin-bottom:8px;
+  }
+  p.subtitle{
+    text-align:center;
+    color:var(--muted);
+    margin-top:0;
+    margin-bottom:28px;
+  }
+  .swatches{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .swatch-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .swatch-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+  }
+  .swatch-card.active{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(37,99,235,.2);
+  }
+  .swatch{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:2px solid var(--border);
+    margin:0 auto 10px;
+  }
+  .swatch-card .name{
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:4px;
+  }
+  .swatch-card .desc{
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.5;
+  }
+  .preview-wrap{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+  }
+  .preview{
+    width:100%;
+    height:320px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    justify-content:center;
+    margin-top:18px;
+  }
+  select, input[type=number]{
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:14px;
+  }
+  button{
+    padding:10px 18px;
+    border-radius:8px;
+    border:none;
+    background:var(--accent);
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  button.secondary{
+    background:#fff;
+    color:var(--accent);
+    border:1px solid var(--accent);
+  }
+  .dims{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .dims input{width:80px;}
+  #fullscreenLayer{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    cursor:none;
+  }
+  #fullscreenLayer.visible{display:block;}
+  .exit-hint{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,.6);
+    color:#fff;
+    padding:8px 16px;
+    border-radius:20px;
+    font-size:13px;
+    opacity:0;
+    transition:opacity .3s;
+    pointer-events:none;
+  }
+  #fullscreenLayer:hover .exit-hint{opacity:1;}
+
+  .effects{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;
+    margin:28px 0 8px;
+  }
+  .effect-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .effect-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+  }
+  .effect-card .icon{
+    font-size:28px;
+    margin-bottom:8px;
+  }
+  .effect-card .name{
+    font-weight:600;
+    font-size:14px;
+  }
+  .effect-card .desc{
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.5;
+    margin-top:6px;
+  }
+  #effectCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:none;
+  }
+
+  .faq{
+    max-width:720px;
+    margin:0 auto;
+  }
+  .faq-item{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 18px;
+    margin-bottom:10px;
+  }
+  .faq-item summary{
+    cursor:pointer;
+    font-weight:600;
+    font-size:15px;
+    list-style:none;
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::before{
+    content:'+ ';
+    color:var(--accent);
+    font-weight:800;
+  }
+  .faq-item[open] summary::before{
+    content:'– ';
+  }
+  .faq-item p{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+    margin:10px 0 2px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    padding:24px 0 32px;
+  }
+  .footer-links{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:12px;
+  }
+  .footer-links a{
+    color:var(--accent);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:600;
+  }
+  .footer-links a:hover{
+    text-decoration:underline;
+  }
+
+  .fs-download-btn{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    z-index:10000;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.4);
+    border-radius:8px;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    opacity:0;
+    transition:opacity .25s;
+  }
+  #fullscreenLayer:hover .fs-download-btn{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="color-screen.html">ColorScreen</a>
+  <div class="header-right">
+    <div data-i18n="tagline" style="color:var(--muted); font-size:13px;">Free screen tool · no signup</div>
+    <div class="lang-switch">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="el">ΕΛ</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1 data-i18n="h1_title">Color Screen Online</h1>
+  <p class="subtitle" data-i18n="subtitle">Turn your screen into a bright light source — for video calls, photography, drawing, or just relaxing.</p>
+
+  <div class="swatches" id="swatches"></div>
+
+  <div class="preview-wrap">
+    <div class="preview" id="preview" style="background:#ffffff;" data-i18n-title="preview_title" title="Click for fullscreen"></div>
+
+    <div class="controls">
+      <select id="resolution">
+        <option value="" data-i18n="resolution_default">Screen resolution (default)</option>
+        <option value="640x480">480p</option>
+        <option value="1280x720">720p</option>
+        <option value="1920x1080">1080p</option>
+        <option value="2560x1440">1440p (2K)</option>
+        <option value="3840x2160">2160p (4K)</option>
+        <option value="7680x4320">4320p (8K)</option>
+      </select>
+
+      <div class="dims">
+        <input type="number" id="customW" data-i18n-placeholder="ph_width" placeholder="width px">
+        <span>×</span>
+        <input type="number" id="customH" data-i18n-placeholder="ph_height" placeholder="height px">
+      </div>
+
+      <button id="downloadBtn" class="secondary" data-i18n="btn_download">⬇ Download image</button>
+      <button id="fullscreenBtn" data-i18n="btn_fullscreen">Fullscreen</button>
+    </div>
+  </div>
+
+  <p style="text-align:center; color:var(--muted); font-size:14px; margin-top:32px;" data-i18n="useful_for">
+    Useful for: webcam lighting, dead pixel checks, backlit drawing, reading in the dark, screen cleaning, or just a blank canvas for focus.
+  </p>
+
+  <h2 style="text-align:center; margin-top:48px;" data-i18n="screens_title">Screens for fun</h2>
+  <p class="subtitle" data-i18n="screens_subtitle">Animated screens — open in fullscreen, great for pranks.</p>
+
+  <div class="effects" id="effects">
+    <div class="effect-card" data-effect="broken">
+      <div class="icon">🔨</div>
+      <div class="name" data-i18n="fx_broken_name">Broken screen</div>
+      <div class="desc" data-i18n="fx_broken_desc">A realistic shattered-glass look — for pranking friends or coworkers.</div>
+    </div>
+    <div class="effect-card" data-effect="update">
+      <div class="icon">🔄</div>
+      <div class="name" data-i18n="fx_update_name">System update</div>
+      <div class="desc" data-i18n="fx_update_desc">Looks like a real update in progress — handy when you want a bit of privacy on your computer.</div>
+    </div>
+    <div class="effect-card" data-effect="radar">
+      <div class="icon">📡</div>
+      <div class="name" data-i18n="fx_radar_name">Radar</div>
+      <div class="desc" data-i18n="fx_radar_desc">Spy-movie aesthetic — a nice backdrop for videos, streams, or a themed party.</div>
+    </div>
+    <div class="effect-card" data-effect="hacker">
+      <div class="icon">💻</div>
+      <div class="name" data-i18n="fx_hacker_name">Hacker Terminal</div>
+      <div class="desc" data-i18n="fx_hacker_desc">An eye-catching fake-hacking scene — popular for impressing people or funny videos.</div>
+    </div>
+  </div>
+
+  <h3 style="text-align:center; margin-top:36px; color:var(--muted); font-size:15px;" data-i18n="subsection_boot">Boot screens (generic style)</h3>
+  <div class="effects">
+    <div class="effect-card" data-effect="winboot">
+      <div class="icon">🪟</div>
+      <div class="name" data-i18n="fx_winboot_name">Windows-style boot</div>
+      <div class="desc" data-i18n="fx_winboot_desc">Looks like a computer starting up — good for a prank or a presentation scene.</div>
+    </div>
+    <div class="effect-card" data-effect="macboot">
+      <div class="icon">🍎</div>
+      <div class="name" data-i18n="fx_macboot_name">Mac-style boot</div>
+      <div class="desc" data-i18n="fx_macboot_desc">A clean, minimal loading style — fits a minimal aesthetic in videos or displays.</div>
+    </div>
+    <div class="effect-card" data-effect="ubuntuboot">
+      <div class="icon">🟠</div>
+      <div class="name" data-i18n="fx_ubuntuboot_name">Ubuntu-style boot</div>
+      <div class="desc" data-i18n="fx_ubuntuboot_desc">A Linux-style boot look — great for showing friends a more technical environment.</div>
+    </div>
+  </div>
+
+  <h3 style="text-align:center; margin-top:36px; color:var(--muted); font-size:15px;" data-i18n="subsection_sports">Sports screens</h3>
+  <div class="effects">
+    <div class="effect-card" data-effect="football">
+      <div class="icon">⚽</div>
+      <div class="name" data-i18n="fx_football_name">Football</div>
+      <div class="desc" data-i18n="fx_football_desc">A lively pitch with ball and score — a backdrop for a football-themed party.</div>
+    </div>
+    <div class="effect-card" data-effect="basketball">
+      <div class="icon">🏀</div>
+      <div class="name" data-i18n="fx_basketball_name">Basketball</div>
+      <div class="desc" data-i18n="fx_basketball_desc">A bouncing ball on a court with score — decorative backdrop for basketball fans.</div>
+    </div>
+  </div>
+
+  <h3 style="text-align:center; margin-top:36px; color:var(--muted); font-size:15px;" data-i18n="subsection_screensavers">Screensavers</h3>
+  <div class="effects">
+    <div class="effect-card" data-effect="dvd">
+      <div class="icon">📀</div>
+      <div class="name" data-i18n="fx_dvd_name">DVD</div>
+      <div class="desc" data-i18n="fx_dvd_desc">The legendary bouncing logo — nostalgia for anyone who remembers DVD players.</div>
+    </div>
+    <div class="effect-card" data-effect="flipclock">
+      <div class="icon">🕐</div>
+      <div class="name" data-i18n="fx_flipclock_name">Flip Clock</div>
+      <div class="desc" data-i18n="fx_flipclock_desc">A functional fullscreen clock — handy for an office, storefront, or nightstand.</div>
+    </div>
+    <div class="effect-card" data-effect="nosignal">
+      <div class="icon">📺</div>
+      <div class="name" data-i18n="fx_nosignal_name">No Signal</div>
+      <div class="desc" data-i18n="fx_nosignal_desc">Looks like a broken TV — a funny prank or a retro effect for videos.</div>
+    </div>
+  </div>
+
+  <h2 style="text-align:center; margin-top:56px;" data-i18n="faq_title">Frequently Asked Questions</h2>
+  <div class="faq" id="faq">
+    <details class="faq-item">
+      <summary data-i18n="faq_q1">What exactly does this tool do?</summary>
+      <p data-i18n="faq_a1">It turns your device's screen into a solid color surface or one of the animated effect screens (broken screen, radar, hacker terminal, etc.) in fullscreen. Useful for lighting during video calls, screen testing, photography, or just for fun.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q2">Do I need to install anything or sign up?</summary>
+      <p data-i18n="faq_a2">No. The tool runs entirely in your browser. No account is needed, no app download, and no payment is required.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q3">Does it work on mobile and tablet?</summary>
+      <p data-i18n="faq_a3">Yes, the page is fully responsive and works in mobile and tablet browsers. On some mobile browsers, fullscreen behavior may vary slightly due to OS limitations.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q4">Can a full-color screen damage my display?</summary>
+      <p data-i18n="faq_a4">No, displaying a solid color on your screen causes no hardware damage whatsoever. It's often used for the opposite reason: to spot dead pixels or uneven backlighting.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q5">How do I download a color image?</summary>
+      <p data-i18n="faq_a5">Pick the color you want, choose a resolution (or enter your own dimensions), and click "Download image." A PNG file will download automatically to your computer or phone.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q6">Do you collect my personal data?</summary>
+      <p data-i18n="faq_a6">We don't require sign-up and don't collect personal information for using the core tool. For details on any cookies or usage analytics, see our <a href="privacy-policy.html">Privacy Policy</a> and <a href="cookie-policy.html">Cookie Policy</a>.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q7">Are the animated screens (Windows, Mac, Ubuntu, etc.) official?</summary>
+      <p data-i18n="faq_a7">No. These are generic, inspired visual recreations built with our own code, style, and colors. We don't use any official logos or registered trademarks of third-party companies, and we're not affiliated with them.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q8">Can I use the tool on a TV or big screen?</summary>
+      <p data-i18n="faq_a8">Yes, as long as your device has a browser. Open the page, pick the color or effect you want, and hit fullscreen.</p>
+    </details>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="about-us.html" data-i18n="footer_about">About Us</a>
+    <a href="privacy-policy.html" data-i18n="footer_privacy">Privacy Policy</a>
+    <a href="terms-of-use.html" data-i18n="footer_terms">Terms of Use</a>
+    <a href="cookie-policy.html" data-i18n="footer_cookies">Cookie Policy</a>
+  </div>
+  <div data-i18n="footer_copyright">© 2026 ColorScreen — Not affiliated with or a copy of any other service.</div>
+</footer>
+
+<div id="fullscreenLayer" style="background:#ffffff;">
+  <canvas id="effectCanvas"></canvas>
+  <button id="fsDownloadBtn" class="fs-download-btn" data-i18n="fs_download_btn">⬇ Download image</button>
+  <div class="exit-hint" data-i18n="exit_hint">Press ESC or click to exit</div>
+</div>
+
+<script>
+  // ---------------- i18n ----------------
+  const translations = {
+    en: {
+      tagline: 'Free screen tool · no signup',
+      h1_title: 'Color Screen Online',
+      subtitle: 'Turn your screen into a bright light source — for video calls, photography, drawing, or just relaxing.',
+      preview_title: 'Click for fullscreen',
+      resolution_default: 'Screen resolution (default)',
+      ph_width: 'width px',
+      ph_height: 'height px',
+      btn_download: '⬇ Download image',
+      btn_fullscreen: 'Fullscreen',
+      useful_for: 'Useful for: webcam lighting, dead pixel checks, backlit drawing, reading in the dark, screen cleaning, or just a blank canvas for focus.',
+      screens_title: 'Screens for fun',
+      screens_subtitle: 'Animated screens — open in fullscreen, great for pranks.',
+      fx_broken_name: 'Broken screen',
+      fx_broken_desc: 'A realistic shattered-glass look — for pranking friends or coworkers.',
+      fx_update_name: 'System update',
+      fx_update_desc: 'Looks like a real update in progress — handy when you want a bit of privacy on your computer.',
+      fx_radar_name: 'Radar',
+      fx_radar_desc: 'Spy-movie aesthetic — a nice backdrop for videos, streams, or a themed party.',
+      fx_hacker_name: 'Hacker Terminal',
+      fx_hacker_desc: 'An eye-catching fake-hacking scene — popular for impressing people or funny videos.',
+      subsection_boot: 'Boot screens (generic style)',
+      fx_winboot_name: 'Windows-style boot',
+      fx_winboot_desc: 'Looks like a computer starting up — good for a prank or a presentation scene.',
+      fx_macboot_name: 'Mac-style boot',
+      fx_macboot_desc: 'A clean, minimal loading style — fits a minimal aesthetic in videos or displays.',
+      fx_ubuntuboot_name: 'Ubuntu-style boot',
+      fx_ubuntuboot_desc: 'A Linux-style boot look — great for showing friends a more technical environment.',
+      subsection_sports: 'Sports screens',
+      fx_football_name: 'Football',
+      fx_football_desc: 'A lively pitch with ball and score — a backdrop for a football-themed party.',
+      fx_basketball_name: 'Basketball',
+      fx_basketball_desc: 'A bouncing ball on a court with score — decorative backdrop for basketball fans.',
+      subsection_screensavers: 'Screensavers',
+      fx_dvd_name: 'DVD',
+      fx_dvd_desc: 'The legendary bouncing logo — nostalgia for anyone who remembers DVD players.',
+      fx_flipclock_name: 'Flip Clock',
+      fx_flipclock_desc: 'A functional fullscreen clock — handy for an office, storefront, or nightstand.',
+      fx_nosignal_name: 'No Signal',
+      fx_nosignal_desc: 'Looks like a broken TV — a funny prank or a retro effect for videos.',
+      faq_title: 'Frequently Asked Questions',
+      faq_q1: 'What exactly does this tool do?',
+      faq_a1: 'It turns your device\'s screen into a solid color surface or one of the animated effect screens (broken screen, radar, hacker terminal, etc.) in fullscreen. Useful for lighting during video calls, screen testing, photography, or just for fun.',
+      faq_q2: 'Do I need to install anything or sign up?',
+      faq_a2: 'No. The tool runs entirely in your browser. No account is needed, no app download, and no payment is required.',
+      faq_q3: 'Does it work on mobile and tablet?',
+      faq_a3: 'Yes, the page is fully responsive and works in mobile and tablet browsers. On some mobile browsers, fullscreen behavior may vary slightly due to OS limitations.',
+      faq_q4: 'Can a full-color screen damage my display?',
+      faq_a4: 'No, displaying a solid color on your screen causes no hardware damage whatsoever. It\'s often used for the opposite reason: to spot dead pixels or uneven backlighting.',
+      faq_q5: 'How do I download a color image?',
+      faq_a5: 'Pick the color you want, choose a resolution (or enter your own dimensions), and click "Download image." A PNG file will download automatically to your computer or phone.',
+      faq_q6: 'Do you collect my personal data?',
+      faq_a6: 'We don\'t require sign-up and don\'t collect personal information for using the core tool. For details on any cookies or usage analytics, see our <a href="privacy-policy.html">Privacy Policy</a> and <a href="cookie-policy.html">Cookie Policy</a>.',
+      faq_q7: 'Are the animated screens (Windows, Mac, Ubuntu, etc.) official?',
+      faq_a7: 'No. These are generic, inspired visual recreations built with our own code, style, and colors. We don\'t use any official logos or registered trademarks of third-party companies, and we\'re not affiliated with them.',
+      faq_q8: 'Can I use the tool on a TV or big screen?',
+      faq_a8: 'Yes, as long as your device has a browser. Open the page, pick the color or effect you want, and hit fullscreen.',
+      footer_about: 'About Us',
+      footer_privacy: 'Privacy Policy',
+      footer_terms: 'Terms of Use',
+      footer_cookies: 'Cookie Policy',
+      footer_copyright: '© 2026 ColorScreen — Not affiliated with or a copy of any other service.',
+      fs_download_btn: '⬇ Download image',
+      exit_hint: 'Press ESC or click to exit',
+      page_title: 'Color Screen Online · Full-Screen Color & Effects Tool'
+    },
+    el: {
+      tagline: 'Δωρεάν εργαλείο οθόνης · χωρίς εγγραφή',
+      h1_title: 'Οθόνη Χρώματος Online',
+      subtitle: 'Μετατρέψτε την οθόνη σας σε φωτεινή πηγή φωτός — για κλήσεις βίντεο, φωτογραφία, ζωγραφική ή απλά χαλάρωση.',
+      preview_title: 'Κλικ για πλήρη οθόνη',
+      resolution_default: 'Ανάλυση οθόνης (default)',
+      ph_width: 'πλάτος px',
+      ph_height: 'ύψος px',
+      btn_download: '⬇ Λήψη εικόνας',
+      btn_fullscreen: 'Πλήρης οθόνη',
+      useful_for: 'Χρήσιμο για: φωτισμό webcam, έλεγχο dead pixels, ζωγραφική με φωτισμό από πίσω, διάβασμα στο σκοτάδι, καθάρισμα οθόνης, ή απλά ένα κενό καμβά για συγκέντρωση.',
+      screens_title: 'Screens για πλάκα',
+      screens_subtitle: 'Κινούμενες οθόνες — ανοίγουν σε πλήρη οθόνη, ιδανικές για φάρσα.',
+      fx_broken_name: 'Σπασμένη οθόνη',
+      fx_broken_desc: 'Ρεαλιστική εικόνα ραγισμένου γυαλιού — για φάρσα σε φίλους ή συναδέλφους.',
+      fx_update_name: 'Ενημέρωση συστήματος',
+      fx_update_desc: 'Μοιάζει με πραγματική ενημέρωση — χρήσιμο όταν θες λίγη ιδιωτικότητα στον υπολογιστή σου.',
+      fx_radar_name: 'Ραντάρ',
+      fx_radar_desc: 'Αισθητική κατασκοπείας — ωραίο φόντο για βίντεο, streams ή θεματικό πάρτι.',
+      fx_hacker_name: 'Hacker Terminal',
+      fx_hacker_desc: 'Εντυπωσιακό ψευτο-hacking σκηνικό — δημοφιλές για εντυπωσιασμό ή αστεία βίντεο.',
+      subsection_boot: 'Οθόνες εκκίνησης (γενικό στυλ)',
+      fx_winboot_name: 'Windows-style boot',
+      fx_winboot_desc: 'Φαίνεται σαν να ξεκινάει υπολογιστής — καλό για φάρσα ή σκηνικό παρουσίασης.',
+      fx_macboot_name: 'Mac-style boot',
+      fx_macboot_desc: 'Καθαρό, λιτό στυλ φόρτωσης — ταιριάζει για minimal αισθητική σε βίντεο ή vitrina.',
+      fx_ubuntuboot_name: 'Ubuntu-style boot',
+      fx_ubuntuboot_desc: 'Στυλ εκκίνησης Linux — ιδανικό για δείξεις σε φίλους πιο τεχνικό περιβάλλον.',
+      subsection_sports: 'Sports screens',
+      fx_football_name: 'Football',
+      fx_football_desc: 'Ζωντανό γήπεδο με μπάλα και σκορ — φόντο για πάρτι θέματος ποδοσφαίρου.',
+      fx_basketball_name: 'Basketball',
+      fx_basketball_desc: 'Αναπηδά η μπάλα σε γήπεδο με σκορ — διακοσμητικό φόντο για fan μπάσκετ.',
+      subsection_screensavers: 'Screensavers',
+      fx_dvd_name: 'DVD',
+      fx_dvd_desc: 'Το θρυλικό αναπηδώμενο λογότυπο — νοσταλγία για όσους θυμούνται τα DVD players.',
+      fx_flipclock_name: 'Flip Clock',
+      fx_flipclock_desc: 'Λειτουργικό ρολόι πλήρους οθόνης — χρήσιμο για γραφείο, βιτρίνα ή κομοδίνο.',
+      fx_nosignal_name: 'No Signal',
+      fx_nosignal_desc: 'Μοιάζει με χαλασμένη τηλεόραση — αστεία φάρσα ή retro εφέ για βίντεο.',
+      faq_title: 'Συχνές Ερωτήσεις (FAQ)',
+      faq_q1: 'Τι ακριβώς κάνει αυτό το εργαλείο;',
+      faq_a1: 'Μετατρέπει την οθόνη της συσκευής σας σε μια συμπαγή επιφάνεια χρώματος ή σε μια από τις κινούμενες εφέ οθόνες (σπασμένη οθόνη, ραντάρ, hacker terminal κ.λπ.), σε πλήρη οθόνη. Είναι χρήσιμο για φωτισμό κατά τη διάρκεια βιντεοκλήσεων, τεστ οθόνης, φωτογράφιση, ή απλά για πλάκα.',
+      faq_q2: 'Χρειάζεται εγκατάσταση ή εγγραφή;',
+      faq_a2: 'Όχι. Το εργαλείο τρέχει εξ ολοκλήρου μέσα στον browser σας. Δεν χρειάζεται λογαριασμός, δεν χρειάζεται download εφαρμογής και δεν απαιτείται καμία πληρωμή.',
+      faq_q3: 'Λειτουργεί σε κινητό και tablet;',
+      faq_a3: 'Ναι, η σελίδα είναι πλήρως responsive και λειτουργεί σε browsers κινητών και tablet. Σε ορισμένα κινητά browsers η λειτουργία πλήρους οθόνης ενδέχεται να έχει μικρές διαφορές λόγω περιορισμών του λειτουργικού συστήματος.',
+      faq_q4: 'Μπορεί να βλάψει την οθόνη μου η χρήση οθόνης πλήρους χρώματος;',
+      faq_a4: 'Όχι, η προβολή ενός συμπαγούς χρώματος στην οθόνη σας δεν προκαλεί καμία βλάβη στο υλικό της συσκευής σας. Χρησιμοποιείται συχνά ακριβώς για τον αντίθετο λόγο: για να εντοπίσετε νεκρά pixel ή ανομοιομορφίες στον φωτισμό της οθόνης.',
+      faq_q5: 'Πώς κάνω λήψη μιας εικόνας χρώματος;',
+      faq_a5: 'Επιλέξτε το χρώμα που θέλετε, διαλέξτε ανάλυση (ή βάλτε δικές σας διαστάσεις) και πατήστε «Λήψη εικόνας». Θα κατέβει αυτόματα ένα αρχείο PNG στον υπολογιστή ή στο κινητό σας.',
+      faq_q6: 'Συλλέγετε προσωπικά δεδομένα μου;',
+      faq_a6: 'Δεν απαιτούμε εγγραφή και δεν συλλέγουμε προσωπικά στοιχεία για τη χρήση του βασικού εργαλείου. Για λεπτομέρειες σχετικά με τυχόν cookies ή αναλυτικά στοιχεία χρήσης, δείτε την <a href="privacy-policy.html">Πολιτική Απορρήτου</a> και την <a href="cookie-policy.html">Πολιτική Cookies</a>.',
+      faq_q7: 'Οι κινούμενες οθόνες (Windows, Mac, Ubuntu κ.λπ.) είναι επίσημες;',
+      faq_a7: 'Όχι. Πρόκειται για γενικές, εμπνευσμένες οπτικές αναπαραστάσεις με δικό μας κώδικα, στυλ και χρώματα. Δεν χρησιμοποιούμε επίσημα λογότυπα ή κατοχυρωμένα σήματα τρίτων εταιρειών και δεν σχετιζόμαστε με αυτές.',
+      faq_q8: 'Μπορώ να χρησιμοποιήσω το εργαλείο σε τηλεόραση ή μεγάλη οθόνη;',
+      faq_a8: 'Ναι, αρκεί η συσκευή σας να διαθέτει browser. Ανοίξτε τη σελίδα, επιλέξτε το επιθυμητό χρώμα ή εφέ και πατήστε πλήρη οθόνη.',
+      footer_about: 'About Us',
+      footer_privacy: 'Πολιτική Απορρήτου',
+      footer_terms: 'Όροι Χρήσης',
+      footer_cookies: 'Πολιτική Cookies',
+      footer_copyright: '© 2026 ColorScreen — Δεν σχετίζεται ούτε αντιγράφει άλλη υπηρεσία.',
+      fs_download_btn: '⬇ Λήψη εικόνας',
+      exit_hint: 'Πατήστε ESC ή κάντε κλικ για έξοδο',
+      page_title: 'Color Screen Online · Φωτεινή Οθόνη Χρώματος'
+    }
+  };
+
+  const canvasText = {
+    en: {
+      updating: 'Installing system update',
+      updateProgress: '% complete',
+      updateWarning: 'Do not turn off your computer',
+      winPreparing: 'Preparing...',
+      macLoading: 'Loading...',
+      ubuntuBooting: 'Ubuntu-style boot'
+    },
+    el: {
+      updating: 'Γίνεται ενημέρωση συστήματος',
+      updateProgress: '% ολοκληρώθηκε',
+      updateWarning: 'Μην απενεργοποιήσετε τον υπολογιστή σας',
+      winPreparing: 'Γίνεται προετοιμασία...',
+      macLoading: 'Φόρτωση...',
+      ubuntuBooting: 'Ubuntu-style εκκίνηση'
+    }
+  };
+
+  let currentLang = (function(){
+    try { return localStorage.getItem('site_lang') || 'en'; } catch(e){ return 'en'; }
+  })();
+
+  function applyTranslations(lang){
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[lang] && translations[lang][key] !== undefined){
+        el.innerHTML = translations[lang][key];
+      }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (translations[lang] && translations[lang][key] !== undefined){
+        el.placeholder = translations[lang][key];
+      }
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (translations[lang] && translations[lang][key] !== undefined){
+        el.title = translations[lang][key];
+      }
+    });
+    document.documentElement.lang = lang;
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl && translations[lang].page_title) titleEl.textContent = translations[lang].page_title;
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  }
+
+  function setLang(lang){
+    currentLang = lang;
+    try { localStorage.setItem('site_lang', lang); } catch(e){}
+    applyTranslations(lang);
+    renderColors(lang);
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang));
+  });
+
+  applyTranslations(currentLang);
+
+  // ---------------- Colors ----------------
+  const colors = [
+    {hex:'#ffffff', name:{en:'White',el:'Λευκό'}, desc:{en:'Maximum brightness like a ring light — ideal for face lighting in video calls and selfies.', el:'Μέγιστη φωτεινότητα σαν ring light — ιδανικό για φωτισμό προσώπου σε βιντεοκλήσεις και selfie.'}},
+    {hex:'#000000', name:{en:'Black',el:'Μαύρο'}, desc:{en:'Saves battery on OLED screens and helps you check for dead pixels.', el:'Εξοικονομεί μπαταρία σε οθόνες OLED και βοηθά στον έλεγχο για νεκρά pixel.'}},
+    {hex:'#e02424', name:{en:'Red',el:'Κόκκινο'}, desc:{en:'Preserves night vision — favored in astronomy or darkroom settings.', el:'Διατηρεί τη νυχτερινή όραση — προτιμάται σε αστρονομία ή δωμάτια σκοτεινού θαλάμου.'}},
+    {hex:'#16a34a', name:{en:'Green',el:'Πράσινο'}, desc:{en:'Acts as a green screen (chroma key) for recordings, or eases eye strain.', el:'Λειτουργεί σαν green screen (chroma key) για εγγραφές ή ξεκουράζει τα μάτια.'}},
+    {hex:'#2563eb', name:{en:'Blue',el:'Μπλε'}, desc:{en:'Calm, cool light — helps with focus or evening reading.', el:'Ήρεμο, ψυχρό φως — βοηθά στη συγκέντρωση ή σε βραδινό διάβασμα.'}},
+    {hex:'#facc15', name:{en:'Yellow',el:'Κίτρινο'}, desc:{en:'Warm light like a tungsten lamp — good for mood or photography.', el:'Ζεστό φως σαν λάμπα βολφραμίου — καλό για ατμόσφαιρα ή φωτογραφία.'}},
+    {hex:'#f97316', name:{en:'Orange',el:'Πορτοκαλί'}, desc:{en:'Warm, friendly light that\'s easier on the eyes at night than white.', el:'Ζεστό, φιλικό φως που κουράζει λιγότερο τα μάτια σε σχέση με το λευκό το βράδυ.'}},
+    {hex:'#ec4899', name:{en:'Pink',el:'Ροζ'}, desc:{en:'Soft, flattering lighting — a popular choice for selfies and videos.', el:'Απαλός, κολακευτικός φωτισμός — δημοφιλής επιλογή για selfie και βίντεο.'}},
+    {hex:'#9333ea', name:{en:'Purple',el:'Μωβ'}, desc:{en:'Creative, moody atmosphere — a favorite for gaming setups.', el:'Δημιουργική, μυστηριώδης ατμόσφαιρα — αγαπημένο σε gaming setups.'}},
+  ];
+
+  const swatchesEl = document.getElementById('swatches');
+  const preview = document.getElementById('preview');
+  const fullscreenLayer = document.getElementById('fullscreenLayer');
+  let currentColor = '#ffffff';
+  let activeColorIndex = 0;
+
+  function renderColors(lang){
+    swatchesEl.innerHTML = '';
+    colors.forEach((c, i) => {
+      const el = document.createElement('div');
+      el.className = 'swatch-card' + (i===activeColorIndex ? ' active' : '');
+      el.innerHTML = `
+        <div class="swatch" style="background:${c.hex};"></div>
+        <div class="name">${c.name[lang]}</div>
+        <div class="desc">${c.desc[lang]}</div>
+      `;
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.swatch-card').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+        activeColorIndex = i;
+        currentColor = c.hex;
+        preview.style.background = c.hex;
+        fullscreenLayer.style.background = c.hex;
+      });
+      swatchesEl.appendChild(el);
+    });
+  }
+  renderColors(currentLang);
+
+  preview.addEventListener('click', () => enterFullscreen('color'));
+  document.getElementById('fullscreenBtn').addEventListener('click', () => enterFullscreen('color'));
+
+  const effectCanvas = document.getElementById('effectCanvas');
+  const ctx2d = effectCanvas.getContext('2d');
+  let animId = null;
+  let activeMode = 'color';
+
+  document.querySelectorAll('.effect-card').forEach(card => {
+    card.addEventListener('click', () => enterFullscreen(card.dataset.effect));
+  });
+
+  function enterFullscreen(mode){
+    activeMode = mode;
+    fullscreenLayer.classList.add('visible');
+    const req = fullscreenLayer.requestFullscreen || fullscreenLayer.webkitRequestFullscreen;
+    if (req) req.call(fullscreenLayer).catch(()=>{});
+
+    if (mode === 'color') {
+      effectCanvas.style.display = 'none';
+      fullscreenLayer.style.background = currentColor;
+    } else {
+      fullscreenLayer.style.background = '#000000';
+      effectCanvas.style.display = 'block';
+      resizeCanvas();
+      startEffect(mode);
+    }
+  }
+
+  function exitFullscreen(){
+    fullscreenLayer.classList.remove('visible');
+    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    if (animId) cancelAnimationFrame(animId);
+    animId = null;
+  }
+
+  function resizeCanvas(){
+    effectCanvas.width = window.innerWidth;
+    effectCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', () => {
+    if (activeMode !== 'color' && fullscreenLayer.classList.contains('visible')) {
+      resizeCanvas();
+    }
+  });
+
+  function startEffect(mode){
+    if (animId) cancelAnimationFrame(animId);
+    if (mode === 'broken') runBrokenScreen();
+    else if (mode === 'update') runFakeUpdate();
+    else if (mode === 'radar') runRadar();
+    else if (mode === 'hacker') runHacker();
+    else if (mode === 'winboot') runWinBoot();
+    else if (mode === 'macboot') runMacBoot();
+    else if (mode === 'ubuntuboot') runUbuntuBoot();
+    else if (mode === 'football') runFootball();
+    else if (mode === 'basketball') runBasketball();
+    else if (mode === 'dvd') runDVD();
+    else if (mode === 'flipclock') runFlipClock();
+    else if (mode === 'nosignal') runNoSignal();
+  }
+
+  // ---- Broken screen: dense shatter mesh, denser toward one corner ----
+  function runBrokenScreen(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const ix = w * (0.65 + Math.random()*0.25);
+    const iy = h * (0.1 + Math.random()*0.25);
+
+    const points = [];
+    const numPoints = 260;
+    const maxR = Math.max(w,h) * 1.15;
+    for (let i=0;i<numPoints;i++){
+      const angle = Math.random()*Math.PI*2;
+      const r = Math.pow(Math.random(), 1.9) * maxR;
+      points.push({
+        x: Math.max(-15, Math.min(w+15, ix + Math.cos(angle)*r)),
+        y: Math.max(-15, Math.min(h+15, iy + Math.sin(angle)*r))
+      });
+    }
+    const borderSteps = 14;
+    for (let i=0;i<=borderSteps;i++){
+      const t = i/borderSteps;
+      points.push({x:t*w,y:-8},{x:t*w,y:h+8},{x:-8,y:t*h},{x:w+8,y:t*h});
+    }
+
+    const edges = [];
+    const k = 3;
+    for (let i=0;i<points.length;i++){
+      const dists = [];
+      for (let j=0;j<points.length;j++){
+        if (i===j) continue;
+        const dx = points[i].x-points[j].x, dy = points[i].y-points[j].y;
+        dists.push({j, d: dx*dx+dy*dy});
+      }
+      dists.sort((a,b)=>a.d-b.d);
+      for (let n=0;n<k;n++){
+        const nb = dists[n];
+        if (!nb) continue;
+        edges.push({
+          x1: points[i].x, y1: points[i].y,
+          x2: points[nb.j].x, y2: points[nb.j].y,
+          w: 0.5 + Math.random()*1.1,
+          glintPhase: Math.random()*Math.PI*2
+        });
+      }
+    }
+
+    let t = 0;
+    function draw(){
+      t += 0.02;
+      ctx2d.fillStyle = '#050505';
+      ctx2d.fillRect(0,0,w,h);
+      edges.forEach(e => {
+        const shimmer = Math.max(0, Math.sin(t*1.5 + e.glintPhase));
+        const alpha = 0.28 + shimmer*0.55;
+        ctx2d.beginPath();
+        ctx2d.moveTo(e.x1,e.y1);
+        ctx2d.lineTo(e.x2,e.y2);
+        ctx2d.strokeStyle = `rgba(235,235,245,${alpha})`;
+        ctx2d.lineWidth = e.w;
+        ctx2d.stroke();
+      });
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Fake system update ----
+  function runFakeUpdate(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    let progress = 0;
+    let angle = 0;
+    function draw(){
+      const ct = canvasText[currentLang];
+      ctx2d.fillStyle = '#0a2a63';
+      ctx2d.fillRect(0,0,w,h);
+      const cx = w/2, cy = h/2 - 40;
+      angle += 0.06;
+      ctx2d.lineWidth = 6;
+      ctx2d.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx2d.beginPath();
+      ctx2d.arc(cx,cy,36,0,Math.PI*2);
+      ctx2d.stroke();
+      ctx2d.strokeStyle = '#ffffff';
+      ctx2d.beginPath();
+      ctx2d.arc(cx,cy,36,angle, angle+1.6);
+      ctx2d.stroke();
+
+      progress += 0.05;
+      if (progress > 100) progress = 0;
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.font = '28px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(ct.updating, cx, cy+90);
+      ctx2d.font = '18px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx2d.fillText(Math.floor(progress) + ct.updateProgress, cx, cy+122);
+      ctx2d.fillText(ct.updateWarning, cx, cy+150);
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Radar sweep ----
+  function runRadar(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const cx = w/2, cy = h/2;
+    const R = Math.min(w,h)/2 - 20;
+    let sweep = 0;
+    const blips = [];
+    for (let i=0;i<8;i++){
+      blips.push({ angle: Math.random()*Math.PI*2, r: Math.random()*R*0.9, life: 0 });
+    }
+    function draw(){
+      ctx2d.fillStyle = '#001a00';
+      ctx2d.fillRect(0,0,w,h);
+      ctx2d.strokeStyle = 'rgba(0,255,120,0.35)';
+      ctx2d.lineWidth = 1;
+      for (let r=R/4; r<=R; r+=R/4){
+        ctx2d.beginPath();
+        ctx2d.arc(cx,cy,r,0,Math.PI*2);
+        ctx2d.stroke();
+      }
+      ctx2d.beginPath();
+      ctx2d.moveTo(cx-R,cy); ctx2d.lineTo(cx+R,cy);
+      ctx2d.moveTo(cx,cy-R); ctx2d.lineTo(cx,cy+R);
+      ctx2d.stroke();
+
+      sweep += 0.03;
+      ctx2d.save();
+      ctx2d.beginPath();
+      ctx2d.moveTo(cx,cy);
+      ctx2d.arc(cx,cy,R,sweep-0.5,sweep);
+      ctx2d.closePath();
+      ctx2d.fillStyle = 'rgba(0,255,100,0.25)';
+      ctx2d.fill();
+      ctx2d.restore();
+
+      ctx2d.beginPath();
+      ctx2d.moveTo(cx,cy);
+      ctx2d.lineTo(cx+Math.cos(sweep)*R, cy+Math.sin(sweep)*R);
+      ctx2d.strokeStyle = '#00ff88';
+      ctx2d.lineWidth = 2;
+      ctx2d.stroke();
+
+      blips.forEach(b => {
+        b.life += 0.01;
+        if (b.life > 1){
+          b.angle = Math.random()*Math.PI*2;
+          b.r = Math.random()*R*0.9;
+          b.life = 0;
+        }
+        const bx = cx+Math.cos(b.angle)*b.r;
+        const by = cy+Math.sin(b.angle)*b.r;
+        ctx2d.beginPath();
+        ctx2d.arc(bx,by,4,0,Math.PI*2);
+        ctx2d.fillStyle = `rgba(0,255,120,${1-b.life})`;
+        ctx2d.fill();
+      });
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Hacker terminal ----
+  function runHacker(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const cols = Math.floor(w/16);
+    const drops = new Array(cols).fill(0);
+    const chars = '01ΑΒΓΔΕΖΗΘαβγδεζηθ$#@%&*<>/\\';
+    const lines = [];
+    const commands = [
+      'connecting to remote host...',
+      'authenticating user...',
+      'access granted',
+      'decrypting payload...',
+      'scanning ports 1-65535',
+      'bypassing firewall...',
+      'root@system:~# ',
+    ];
+    let cmdIndex = 0, charIndex = 0, timer = 0;
+
+    function draw(){
+      ctx2d.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx2d.fillRect(0,0,w,h);
+
+      ctx2d.fillStyle = '#0f0';
+      ctx2d.font = '15px monospace';
+      for (let i=0;i<cols;i++){
+        const text = chars[Math.floor(Math.random()*chars.length)];
+        const x = i*16;
+        const y = drops[i]*16;
+        ctx2d.fillText(text, x, y);
+        if (y > h && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+
+      timer++;
+      if (timer % 2 === 0){
+        if (cmdIndex < commands.length){
+          const cmd = commands[cmdIndex];
+          if (charIndex <= cmd.length){
+            charIndex++;
+          } else {
+            lines.push(cmd);
+            if (lines.length > 8) lines.shift();
+            cmdIndex++; charIndex = 0;
+          }
+        } else {
+          cmdIndex = 0; lines.length = 0;
+        }
+      }
+
+      ctx2d.font = '16px monospace';
+      ctx2d.fillStyle = '#0f0';
+      let ly = h - 30 - lines.length*20;
+      lines.forEach(l => { ctx2d.fillText(l, 20, ly); ly += 20; });
+      if (cmdIndex < commands.length){
+        ctx2d.fillText(commands[cmdIndex].slice(0,charIndex) + '▌', 20, ly);
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Windows-style boot (generic, no logo) ----
+  function runWinBoot(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const cx = w/2, cy = h/2;
+    let t = 0;
+    function draw(){
+      const ct = canvasText[currentLang];
+      ctx2d.fillStyle = '#000000';
+      ctx2d.fillRect(0,0,w,h);
+      t += 0.07;
+      const dotCount = 6, radius = 30;
+      for (let i=0;i<dotCount;i++){
+        const a = (i/dotCount)*Math.PI*2 + t;
+        const dx = cx + Math.cos(a)*radius;
+        const dy = cy + Math.sin(a)*radius;
+        const fade = (Math.sin(t - i*0.5)+1)/2;
+        ctx2d.beginPath();
+        ctx2d.arc(dx,dy,6,0,Math.PI*2);
+        ctx2d.fillStyle = `rgba(255,255,255,${0.3+fade*0.7})`;
+        ctx2d.fill();
+      }
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.font = '22px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(ct.winPreparing, cx, cy+90);
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Mac-style boot (generic, no logo) ----
+  function runMacBoot(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const cx = w/2, cy = h/2 - 20;
+    let t = 0;
+    function draw(){
+      const ct = canvasText[currentLang];
+      ctx2d.fillStyle = '#f5f5f7';
+      ctx2d.fillRect(0,0,w,h);
+      t += 0.12;
+      const lines = 12, radius = 26;
+      for (let i=0;i<lines;i++){
+        const a = (i/lines)*Math.PI*2;
+        const alpha = ((i - (t % lines) + lines) % lines) / lines;
+        ctx2d.save();
+        ctx2d.translate(cx,cy);
+        ctx2d.rotate(a);
+        ctx2d.strokeStyle = `rgba(120,120,120,${0.15+alpha*0.7})`;
+        ctx2d.lineWidth = 4;
+        ctx2d.beginPath();
+        ctx2d.moveTo(radius,0);
+        ctx2d.lineTo(radius+14,0);
+        ctx2d.stroke();
+        ctx2d.restore();
+      }
+      ctx2d.fillStyle = '#333333';
+      ctx2d.font = '20px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(ct.macLoading, cx, cy+90);
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Ubuntu-style boot (generic, no logo) ----
+  function runUbuntuBoot(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const cx = w/2, cy = h/2;
+    let t = 0;
+    function draw(){
+      const ct = canvasText[currentLang];
+      ctx2d.fillStyle = '#2c001e';
+      ctx2d.fillRect(0,0,w,h);
+      t += 0.05;
+      const dotCount = 5, spacing = 34;
+      const startX = cx - ((dotCount-1)*spacing)/2;
+      for (let i=0;i<dotCount;i++){
+        const phase = (t - i*0.4) % (Math.PI*2);
+        const scale = 0.5 + Math.abs(Math.sin(phase))*0.6;
+        ctx2d.beginPath();
+        ctx2d.arc(startX+i*spacing, cy, 10*scale, 0, Math.PI*2);
+        ctx2d.fillStyle = '#e95420';
+        ctx2d.fill();
+      }
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.font = '20px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(ct.ubuntuBooting, cx, cy+80);
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Football (generic, no real teams/logos) ----
+  function runFootball(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    let bx = w/2, by = h/2, vx = 4, vy = 3;
+    let scoreA = 0, scoreB = 0, frame = 0;
+    function draw(){
+      ctx2d.fillStyle = '#0b6e2f';
+      ctx2d.fillRect(0,0,w,h);
+      ctx2d.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx2d.lineWidth = 3;
+      ctx2d.strokeRect(20,20,w-40,h-40);
+      ctx2d.beginPath();
+      ctx2d.moveTo(w/2,20); ctx2d.lineTo(w/2,h-20);
+      ctx2d.stroke();
+      ctx2d.beginPath();
+      ctx2d.arc(w/2,h/2,60,0,Math.PI*2);
+      ctx2d.stroke();
+
+      bx += vx; by += vy;
+      if (bx < 40 || bx > w-40) { vx *= -1; frame%50===0 && (Math.random()>0.5 ? scoreA++ : scoreB++); }
+      if (by < 40 || by > h-40) vy *= -1;
+      frame++;
+
+      ctx2d.beginPath();
+      ctx2d.arc(bx,by,14,0,Math.PI*2);
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.fill();
+      ctx2d.strokeStyle = '#000';
+      ctx2d.lineWidth = 1.5;
+      ctx2d.stroke();
+
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.font = 'bold 34px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText('Team A ' + scoreA + ' — ' + scoreB + ' Team B', w/2, 60);
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Basketball (generic, no real teams/logos) ----
+  function runBasketball(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    let bx = w/2, by = 80, vx = 5, vy = 0;
+    const gravity = 0.35;
+    let scoreA = 0, scoreB = 0;
+    function draw(){
+      ctx2d.fillStyle = '#c98a4b';
+      ctx2d.fillRect(0,0,w,h);
+      ctx2d.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx2d.lineWidth = 3;
+      ctx2d.strokeRect(20,20,w-40,h-40);
+      ctx2d.beginPath();
+      ctx2d.arc(w/2,h/2,70,0,Math.PI*2);
+      ctx2d.stroke();
+
+      vy += gravity;
+      bx += vx; by += vy;
+      if (by > h-60) { by = h-60; vy = -Math.abs(vy)*0.85; if (Math.random()>0.985) (Math.random()>0.5?scoreA++:scoreB++); }
+      if (bx < 40 || bx > w-40) vx *= -1;
+
+      ctx2d.beginPath();
+      ctx2d.arc(bx,by,18,0,Math.PI*2);
+      ctx2d.fillStyle = '#e6742c';
+      ctx2d.fill();
+      ctx2d.strokeStyle = '#3a1c00';
+      ctx2d.lineWidth = 2;
+      ctx2d.stroke();
+      ctx2d.beginPath();
+      ctx2d.moveTo(bx-18,by); ctx2d.lineTo(bx+18,by);
+      ctx2d.moveTo(bx,by-18); ctx2d.lineTo(bx,by+18);
+      ctx2d.stroke();
+
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.font = 'bold 34px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText('Team A ' + scoreA + ' — ' + scoreB + ' Team B', w/2, 60);
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- DVD bouncing logo screensaver ----
+  function runDVD(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    let x = w/2, y = h/2, vx = 3.5, vy = 2.8;
+    const boxW = 140, boxH = 60;
+    const colorsList = ['#ff3b3b','#3b82f6','#22c55e','#eab308','#a855f7','#ec4899','#14b8a6'];
+    let colorIdx = 0;
+    function draw(){
+      ctx2d.fillStyle = '#000000';
+      ctx2d.fillRect(0,0,w,h);
+      x += vx; y += vy;
+      let bounced = false;
+      if (x <= 0 || x+boxW >= w) { vx *= -1; bounced = true; }
+      if (y <= 0 || y+boxH >= h) { vy *= -1; bounced = true; }
+      if (bounced) colorIdx = (colorIdx+1) % colorsList.length;
+      ctx2d.fillStyle = colorsList[colorIdx];
+      ctx2d.font = 'bold 48px -apple-system, Segoe UI, Arial, sans-serif';
+      ctx2d.textAlign = 'left';
+      ctx2d.fillText('DVD', x, y+boxH/1.3);
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- Flip clock ----
+  function runFlipClock(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    function draw(){
+      ctx2d.fillStyle = '#111111';
+      ctx2d.fillRect(0,0,w,h);
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2,'0') + ':' +
+                       String(now.getMinutes()).padStart(2,'0') + ':' +
+                       String(now.getSeconds()).padStart(2,'0');
+      const cx = w/2, cy = h/2;
+      ctx2d.textAlign = 'center';
+      ctx2d.font = 'bold ' + Math.min(w/7,200) + 'px monospace';
+      const boxW = Math.min(w/6, 170), boxH = boxW*1.3;
+      const totalW = timeStr.length * boxW * 0.62;
+      let startX = cx - totalW/2;
+      for (let i=0;i<timeStr.length;i++){
+        const ch = timeStr[i];
+        const bx = startX + i*boxW*0.62;
+        if (ch !== ':'){
+          ctx2d.fillStyle = '#222222';
+          ctx2d.fillRect(bx-boxW*0.28, cy-boxH/2, boxW*0.56, boxH);
+          ctx2d.strokeStyle = '#000000';
+          ctx2d.beginPath();
+          ctx2d.moveTo(bx-boxW*0.28, cy); ctx2d.lineTo(bx+boxW*0.28, cy);
+          ctx2d.stroke();
+        }
+        ctx2d.fillStyle = '#ffffff';
+        ctx2d.fillText(ch, bx, cy+boxH*0.16);
+      }
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ---- No signal (static + bars) ----
+  function runNoSignal(){
+    const w = effectCanvas.width, h = effectCanvas.height;
+    const imgData = ctx2d.createImageData(w,h);
+    let blink = 0;
+    function draw(){
+      const data = imgData.data;
+      for (let i=0;i<data.length;i+=4){
+        const v = Math.random()*255;
+        data[i]=v; data[i+1]=v; data[i+2]=v; data[i+3]=255;
+      }
+      ctx2d.putImageData(imgData,0,0);
+
+      blink += 0.1;
+      if (Math.sin(blink) > 0){
+        ctx2d.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx2d.fillRect(w/2-160,h/2-40,320,80);
+        ctx2d.fillStyle = '#ffffff';
+        ctx2d.font = 'bold 32px monospace';
+        ctx2d.textAlign = 'center';
+        ctx2d.fillText('NO SIGNAL', w/2, h/2+10);
+      }
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  fullscreenLayer.addEventListener('click', exitFullscreen);
+
+  const fsDownloadBtn = document.getElementById('fsDownloadBtn');
+  fsDownloadBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const w = window.innerWidth, h = window.innerHeight;
+    const snap = document.createElement('canvas');
+    snap.width = w; snap.height = h;
+    const sctx = snap.getContext('2d');
+    if (activeMode === 'color') {
+      sctx.fillStyle = currentColor;
+      sctx.fillRect(0,0,w,h);
+    } else {
+      sctx.drawImage(effectCanvas, 0, 0, w, h);
+    }
+    const link = document.createElement('a');
+    link.download = 'screen-' + activeMode + '.png';
+    link.href = snap.toDataURL('image/png');
+    link.click();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') exitFullscreen();
+  });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) fullscreenLayer.classList.remove('visible');
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const resSelect = document.getElementById('resolution').value;
+    const customW = document.getElementById('customW').value;
+    const customH = document.getElementById('customH').value;
+
+    let w = 1920, h = 1080;
+    if (customW && customH) {
+      w = parseInt(customW); h = parseInt(customH);
+    } else if (resSelect) {
+      [w, h] = resSelect.split('x').map(Number);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = currentColor;
+    ctx.fillRect(0, 0, w, h);
+
+    const link = document.createElement('a');
+    link.download = 'color-screen.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+</script>
+
+</body>
+</html>
