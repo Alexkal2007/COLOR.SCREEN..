@@ -74,6 +74,12 @@
     font-size:28px;
     margin-bottom:8px;
   }
+  h2{
+    text-align:center;
+    font-size:24px;
+    margin-top:48px;
+    margin-bottom:8px;
+  }
   p.subtitle{
     text-align:center;
     color:var(--muted);
@@ -339,7 +345,7 @@
     Welcome to ColorScreen Online, your ultimate browser-based utility for screen testing and mood lighting. Whether you are a professional photographer looking for the perfect fill light, a developer troubleshooting dead pixels, or simply someone trying to enhance their focus with ambient color, we have designed this platform to be seamless and efficient. Our tool provides an instant, high-quality full-screen color canvas without the need for downloads or registrations. We believe that technology should be accessible and simple, which is why ColorScreen runs entirely within your web browser. Beyond simple solid colors, we offer a suite of creative animated effects, including retro screen savers, system update simulations, and diagnostic tools to help you keep your display in optimal condition. We are constantly updating our library to ensure that you have the best possible experience, whether you are using a smartphone, a tablet, or a large desktop monitor. Thank you for choosing us to brighten your workflow and test your displays. Your satisfaction and privacy are our top priorities, and we invite you to explore all the features we have prepared for you. Start by selecting a color below or dive into our animated effects to transform your device instantly. 
   </div>
 
-  <h3 style="text-align:center; margin-bottom:16px;">Classic Colours</h3>
+  <h2 data-i18n="classic_colours_title">Classic Colours</h2>
   <div class="swatches" id="swatches"></div>
 
   <div class="preview-wrap">
@@ -371,7 +377,7 @@
     Useful for: webcam lighting, dead pixel checks, backlit drawing, reading in the dark, screen cleaning, or just a blank canvas for focus.
   </p>
 
-  <h2 style="text-align:center; margin-top:48px;" data-i18n="screens_title">Screens for fun</h2>
+  <h2 data-i18n="screens_title">Screens for fun</h2>
   <p class="subtitle" data-i18n="screens_subtitle">Animated screens — open in fullscreen, great for pranks.</p>
 
   <div class="effects" id="effects">
@@ -449,7 +455,7 @@
     </div>
   </div>
 
-  <h2 style="text-align:center; margin-top:56px;" data-i18n="faq_title">Frequently Asked Questions</h2>
+  <h2 data-i18n="faq_title">Frequently Asked Questions</h2>
   <div class="faq" id="faq">
     <details class="faq-item">
       <summary data-i18n="faq_q1">What exactly does this tool do?</summary>
@@ -510,6 +516,7 @@
       h1_title: 'Color Screen Online',
       subtitle: 'Turn your screen into a bright light source — for video calls, photography, drawing, or just relaxing.',
       intro_content: 'Welcome to ColorScreen Online, your ultimate browser-based utility for screen testing and mood lighting. Whether you are a professional photographer looking for the perfect fill light, a developer troubleshooting dead pixels, or simply someone trying to enhance their focus with ambient color, we have designed this platform to be seamless and efficient. Our tool provides an instant, high-quality full-screen color canvas without the need for downloads or registrations. We believe that technology should be accessible and simple, which is why ColorScreen runs entirely within your web browser. Beyond simple solid colors, we offer a suite of creative animated effects, including retro screen savers, system update simulations, and diagnostic tools to help you keep your display in optimal condition. We are constantly updating our library to ensure that you have the best possible experience, whether you are using a smartphone, a tablet, or a large desktop monitor. Thank you for choosing us to brighten your workflow and test your displays. Your satisfaction and privacy are our top priorities, and we invite you to explore all the features we have prepared for you. Start by selecting a color below or dive into our animated effects to transform your device instantly.',
+      classic_colours_title: 'Classic Colours',
       preview_title: 'Click for fullscreen',
       resolution_default: 'Screen resolution (default)',
       ph_width: 'width px',
@@ -577,6 +584,7 @@
       h1_title: 'Οθόνη Χρώματος Online',
       subtitle: 'Μετατρέψτε την οθόνη σας σε φωτεινή πηγή φωτός — για κλήσεις βίντεο, φωτογραφία, ζωγραφική ή απλά χαλάρωση.',
       intro_content: 'Καλώς ήρθατε στο ColorScreen Online, το απόλυτο εργαλείο βασισμένο στον browser σας για έλεγχο οθόνης και ατμοσφαιρικό φωτισμό. Είτε είστε επαγγελματίας φωτογράφος που αναζητά το τέλειο φως γεμίσματος, ένας προγραμματιστής που ελέγχει για νεκρά pixel, είτε απλά κάποιος που προσπαθεί να ενισχύσει τη συγκέντρωσή του με χρώματα περιβάλλοντος, σχεδιάσαμε αυτή την πλατφόρμα να είναι εύκολη και αποτελεσματική. Το εργαλείο μας παρέχει έναν άμεσο καμβά χρωμάτων υψηλής ποιότητας σε πλήρη οθόνη, χωρίς να χρειάζεται λήψη αρχείων ή εγγραφές. Πιστεύουμε ότι η τεχνολογία πρέπει να είναι προσβάσιμη και απλή, γι\' αυτό το ColorScreen λειτουργεί εξ ολοκλήρου μέσα στον φυλλομετρητή σας. Πέρα από απλά συμπαγή χρώματα, προσφέρουμε μια σειρά από δημιουργικά κινούμενα εφέ, όπως retro screensavers, προσομοιώσεις ενημέρωσης συστήματος και διαγνωστικά εργαλεία για να διατηρείτε την οθόνη σας σε βέλτιστη κατάσταση. Ενημερώνουμε συνεχώς τη βιβλιοθήκη μας για να διασφαλίσουμε ότι έχετε την καλύτερη δυνατή εμπειρία, είτε χρησιμοποιείτε smartphone, tablet ή μεγάλη οθόνη υπολογιστή. Σας ευχαριστούμε που μας επιλέξατε για να φωτίσετε τη δουλειά σας και να ελέγξετε τις οθόνες σας. Η ικανοποίησή σας και η ιδιωτικότητά σας είναι οι κύριες προτεραιότητές μας και σας προσκαλούμε να εξερευνήσετε όλες τις δυνατότητες που έχουμε προετοιμάσει. Ξεκινήστε επιλέγοντας ένα χρώμα παρακάτω ή εξερευνήστε τα κινούμενα εφέ μας για να μεταμορφώσετε τη συσκευή σας αμέσως.',
+      classic_colours_title: 'Κλασικά Χρώματα',
       preview_title: 'Κλικ για πλήρη οθόνη',
       resolution_default: 'Ανάλυση οθόνης (default)',
       ph_width: 'πλάτος px',
